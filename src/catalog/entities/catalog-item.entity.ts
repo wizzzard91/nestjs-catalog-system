@@ -1,3 +1,5 @@
+import { ItemStatus } from './item-status.enum';
+
 export class CatalogItem {
   id?: string;
   title: string;
@@ -5,6 +7,6 @@ export class CatalogItem {
   category?: string;
   tags?: string[];
   score?: number;
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: ItemStatus;
   createdAt?: string;
 }

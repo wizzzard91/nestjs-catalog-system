@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Anthropic from '@anthropic-ai/sdk';
 
-interface SuggestionResponse {
+export interface SuggestionResponse {
   suggestedTitle: string;
   suggestedDescription: string;
 }
