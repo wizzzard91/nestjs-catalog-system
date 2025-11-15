@@ -29,29 +29,163 @@ NestJS + DynamoDB + Anthropic Claude API
 npm install
 cp .env.example .env
 # add your ANTHROPIC_API_KEY to .env
+```
 
 ## Running DynamoDB Locally
 ```bash
 # Start DynamoDB
 npm run db:up
 
-# Initial DB setup
+# Create table (one time)
 npm run db:setup
 
 # Stop DynamoDB (when done)
 npm run db:down
 ```
 
-# Create table
-node scripts/create-table.js
-
-# Start server
+## Running the Application
+```bash
 npm run start:dev
 ```
 
-## Endpoints
+Server runs on `http://localhost:3000`
 
-**POST /catalog** - Create item  
-**GET /catalog/:id/suggestions** - Get AI suggestions  
-**POST /catalog/:id/approve** - Approve (requires score >= 70)  
-**POST /catalog/:id/reject** - Reject item
+## API Endpoints
+
+### POST /catalog
+Create a new catalog item
+
+**Request:**
+```json
+{
+  "title": "string (required)",
+  "description": "string (required)",
+  "category": "string (optional)",
+  "tags": ["string"] (optional)
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "category": "string",
+  "tags": ["string"],
+  "score": 0-100,
+  "status": "pending",
+  "createdAt": "ISO 8601 datetime"
+}
+```
+
+---
+
+### GET /catalog/:id
+Get item by ID
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "category": "string",
+  "tags": ["string"],
+  "score": 0-100,
+  "status": "pending" | "approved" | "rejected",
+  "createdAt": "ISO 8601 datetime"
+}
+```
+
+---
+
+### GET /catalog/:id/suggestions
+Get AI-powered improvement suggestions
+
+**Response:**
+```json
+{
+  "suggestedTitle": "string",
+  "suggestedDescription": "string"
+}
+```
+
+---
+
+### POST /catalog/:id/approve
+Approve item (requires score >= 70)
+
+**Response:**
+```json
+{
+  "message": "Item approved successfully"
+}
+```
+
+**Error (score < 70):**
+```json
+{
+  "message": "Item score must be 70 or higher (current: 45)",
+  "error": "Bad Request",
+  "statusCode": 400
+}
+```
+
+---
+
+### POST /catalog/:id/reject
+Reject item
+
+**Response:**
+```json
+{
+  "message": "Item rejected successfully"
+}
+```
+
+## Testing with curl
+
+### 1. Create high-score item
+```bash
+curl -X POST http://localhost:3000/catalog \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Amazing Product Title",
+    "description": "This is a very detailed and comprehensive product description that exceeds the minimum sixty character requirement easily",
+    "category": "Electronics",
+    "tags": ["new", "sale", "featured", "hot"]
+  }'
+```
+
+### 2. Create low-score item
+```bash
+curl -X POST http://localhost:3000/catalog \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Product",
+    "description": "Short"
+  }'
+```
+
+### 3. Get item by ID
+```bash
+curl http://localhost:3000/catalog/{id}
+```
+
+### 4. Get AI suggestions
+```bash
+curl http://localhost:3000/catalog/{id}/suggestions
+```
+
+### 5. Approve item (requires score >= 70)
+```bash
+curl -X POST http://localhost:3000/catalog/{id}/approve
+```
+
+### 6. Reject item
+```bash
+curl -X POST http://localhost:3000/catalog/{id}/reject
+```
+
+Replace `{id}` with actual item ID from create response.
