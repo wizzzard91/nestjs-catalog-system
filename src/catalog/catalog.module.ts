@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { CatalogService } from './catalog.service';
 import { CatalogController } from './catalog.controller';
+import { CatalogService } from './catalog.service';
+import { DatabaseModule } from '../database/database.module';
 import { ScoringService } from './scoring/scoring.service';
 import { AiSuggestionService } from './ai-suggestion/ai-suggestion.service';
 
 @Module({
-  providers: [CatalogService, ScoringService, AiSuggestionService],
+  imports: [DatabaseModule],
   controllers: [CatalogController],
+  providers: [CatalogService, ScoringService, AiSuggestionService],
 })
 export class CatalogModule {}
