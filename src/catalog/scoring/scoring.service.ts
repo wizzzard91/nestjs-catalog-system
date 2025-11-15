@@ -1,65 +1,74 @@
 import { Injectable, Logger } from '@nestjs/common';
-
-interface CatalogItem {
-  id?: string;
-  title: string;
-  description: string;
-  category?: string;
-  tags?: string[];
-}
+import { CatalogItem } from '../entities/catalog-item.entity';
 
 @Injectable()
 export class ScoringService {
   private readonly logger = new Logger(ScoringService.name);
 
-  async calculateScore(
-    item: CatalogItem,
-    allItems: CatalogItem[],
-  ): Promise<number> {
-    let score = 40;
+  private readonly BASE_SCORE = 40;
 
-    const titleLength = item.title.length;
-    if (titleLength >= 12 && titleLength <= 50) {
-      score += 20;
-      this.logger.debug(`Title length bonus: +20 (length: ${titleLength})`);
-    }
+  private readonly MAX_SCORE = 100;
 
-    if (item.description.length >= 60) {
-      score += 15;
-      this.logger.debug(
-        `Description length bonus: +15 (length: ${item.description.length})`,
-      );
-    }
+  calculateScore(item: CatalogItem, allItems: CatalogItem[]): number {
+    let score = this.BASE_SCORE;
 
-    if (item.category) {
-      score += 10;
-      this.logger.debug(`Category bonus: +10`);
-    }
+    score += this.scoreTitleLength(item.title);
+    score += this.scoreDescriptionLength(item.description);
+    score += this.scoreCategory(item.category);
+    score += this.scoreTags(item.tags);
+    score += this.scoreUniqueness(item, allItems);
 
-    if (item.tags && item.tags.length > 0) {
-      if (item.tags.length <= 3) {
-        score += 10;
-        this.logger.debug(`Tags bonus (1-3): +10 (count: ${item.tags.length})`);
-      } else {
-        score += 20;
-        this.logger.debug(`Tags bonus (4+): +20 (count: ${item.tags.length})`);
-      }
-    }
-
-    const hasDuplicate = allItems.some(
-      (existingItem) =>
-        existingItem.title === item.title && existingItem.id !== item.id,
-    );
-    if (!hasDuplicate) {
-      score += 5;
-      this.logger.debug(`Unique title bonus: +5`);
-    } else {
-      this.logger.debug(`Duplicate title found, no bonus`);
-    }
-
-    const finalScore = Math.min(score, 100);
-    this.logger.log(`Final score calculated: ${finalScore}`);
+    const finalScore = Math.min(score, this.MAX_SCORE);
+    this.logger.log(`Final score for "${item.title}": ${finalScore}`);
 
     return finalScore;
+  }
+
+  private scoreTitleLength(title: string): number {
+    const length = title.length;
+    if (length >= 12 && length <= 50) {
+      this.logger.debug(`Title length bonus: +20 (${length} chars)`);
+      return 20;
+    }
+    return 0;
+  }
+
+  private scoreDescriptionLength(description: string): number {
+    const length = description.length;
+    if (length >= 60) {
+      this.logger.debug(`Description bonus: +15 (${length} chars)`);
+      return 15;
+    }
+    return 0;
+  }
+
+  private scoreCategory(category?: string): number {
+    if (category) {
+      this.logger.debug('Category bonus: +10');
+      return 10;
+    }
+    return 0;
+  }
+
+  private scoreTags(tags?: string[]): number {
+    if (!tags || tags.length === 0) return 0;
+
+    const bonus = tags.length <= 3 ? 10 : 20;
+    this.logger.debug(`Tags bonus: +${bonus} (${tags.length} tags)`);
+    return bonus;
+  }
+
+  private scoreUniqueness(item: CatalogItem, allItems: CatalogItem[]): number {
+    const hasDuplicate = allItems.some(
+      (existing) => existing.title === item.title && existing.id !== item.id,
+    );
+
+    if (hasDuplicate) {
+      this.logger.debug('Duplicate title found, no bonus');
+      return 0;
+    }
+
+    this.logger.debug('Unique title bonus: +5');
+    return 5;
   }
 }
