@@ -56,7 +56,7 @@ Server runs on `http://localhost:3000`
 Create a new catalog item
 
 **Request:**
-```json
+```
 {
   "title": "string (required)",
   "description": "string (required)",
@@ -66,7 +66,7 @@ Create a new catalog item
 ```
 
 **Response:**
-```json
+```
 {
   "id": "uuid",
   "title": "string",
@@ -85,7 +85,7 @@ Create a new catalog item
 Get item by ID
 
 **Response:**
-```json
+```
 {
   "id": "uuid",
   "title": "string",
@@ -104,7 +104,7 @@ Get item by ID
 Get AI-powered improvement suggestions
 
 **Response:**
-```json
+```
 {
   "suggestedTitle": "string",
   "suggestedDescription": "string"
@@ -117,14 +117,14 @@ Get AI-powered improvement suggestions
 Approve item (requires score >= 70)
 
 **Response:**
-```json
+```
 {
   "message": "Item approved successfully"
 }
 ```
 
 **Error (score < 70):**
-```json
+```
 {
   "message": "Item score must be 70 or higher (current: 45)",
   "error": "Bad Request",
@@ -138,7 +138,7 @@ Approve item (requires score >= 70)
 Reject item
 
 **Response:**
-```json
+```
 {
   "message": "Item rejected successfully"
 }
