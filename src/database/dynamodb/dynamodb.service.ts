@@ -8,6 +8,7 @@ import {
   ScanCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { CatalogItem } from '../../catalog/entities/catalog-item.entity';
 
 @Injectable()
 export class DynamodbService {
@@ -23,7 +24,7 @@ export class DynamodbService {
     this.client = DynamoDBDocumentClient.from(dynamoClient);
   }
 
-  async createItem(item: any) {
+  async createItem(item: CatalogItem): Promise<CatalogItem> {
     await this.client.send(
       new PutCommand({
         TableName: this.tableName,
@@ -33,26 +34,26 @@ export class DynamodbService {
     return item;
   }
 
-  async getItem(id: string) {
+  async getItem(id: string): Promise<CatalogItem | undefined> {
     const result = await this.client.send(
       new GetCommand({
         TableName: this.tableName,
         Key: { id },
       }),
     );
-    return result.Item;
+    return result.Item as CatalogItem | undefined;
   }
 
-  async getAllItems() {
+  async getAllItems(): Promise<CatalogItem[]> {
     const result = await this.client.send(
       new ScanCommand({
         TableName: this.tableName,
       }),
     );
-    return result.Items || [];
+    return (result.Items || []) as CatalogItem[];
   }
 
-  async updateItemStatus(id: string, status: string) {
+  async updateItemStatus(id: string, status: string): Promise<void> {
     await this.client.send(
       new UpdateCommand({
         TableName: this.tableName,

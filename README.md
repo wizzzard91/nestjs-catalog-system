@@ -9,6 +9,8 @@ Backend API for managing catalog items with automatic quality scoring and AI sug
 - Get AI-powered improvement suggestions for titles/descriptions
 - Admin approval workflow (only items with 70+ score can be approved)
 
+You would need to get API key for Claude API (https://docs.claude.com/en/docs/get-started)
+
 ## Scoring
 
 Items start with 40 points and earn more based on:
