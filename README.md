@@ -28,8 +28,17 @@ npm install
 cp .env.example .env
 # add your ANTHROPIC_API_KEY to .env
 
-# Run DynamoDB locally
-docker run -p 8000:8000 amazon/dynamodb-local
+## Running DynamoDB Locally
+```bash
+# Start DynamoDB
+npm run db:up
+
+# Initial DB setup
+npm run db:setup
+
+# Stop DynamoDB (when done)
+npm run db:down
+```
 
 # Create table
 node scripts/create-table.js
